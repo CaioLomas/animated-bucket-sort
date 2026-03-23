@@ -90,7 +90,7 @@ public class Controller {
     private void iniciarMotorDeAnimacao(BucketSort bk) {
         Thread thread = new Thread(() -> {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(800);
 
                 Passo[] passos = bk.getVet_passo();
                 int qtd = bk.getQtd_passos();
@@ -99,9 +99,15 @@ public class Controller {
                     Passo passo = passos[p];
 
                     if (passo.getAcao().equals("PEGA_ELEMENTO") && (passo.getI_destino() == -1 || (passo.getI_destino() >= 0 && p + 1 < qtd && !passos[p+1].getAcao().equals("INSERE_VETOR")))) {
+
+                        Platform.runLater(() -> destacarLinha(0));
+                        Thread.sleep(800);
+
                         Platform.runLater(() -> {
                             lblI.setText("i = " + (passo.getI_origem() != -1 ? passo.getI_origem() : ""));
+                            destacarLinha(1);
                         });
+                        Thread.sleep(800);
 
                         Label bloco = blocosVetor[passo.getI_origem()];
                         double fX = funil.localToScene(funil.getBoundsInLocal()).getMinX();
@@ -109,11 +115,15 @@ public class Controller {
                         double dX = fX - bX + 20;
 
                         deslizarElemento(bloco, dX, -100);
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                     }
 
                     if (passo.getAcao().equals("INSERE_BALDE")) {
-                        Platform.runLater(() -> lblIndice.setText("indice = " + passo.getI_destino()));
+                        Platform.runLater(() -> {
+                            lblIndice.setText("indice = " + passo.getI_destino());
+                            destacarLinha(2);
+                        });
+                        Thread.sleep(800);
 
                         Label bloco = blocosVetor[passo.getI_origem()];
                         VBox baldeDestino = baldesVisuais[passo.getI_destino()];
@@ -124,31 +134,29 @@ public class Controller {
                             bloco.setScaleX(0.7);
                             bloco.setScaleY(0.7);
                         });
-                        Thread.sleep(300);
+                        Thread.sleep(50);
+
+                        deslizarElemento(funil, 0, 135);
+                        Thread.sleep(50);
 
                         Bounds fBounds = funil.localToScene(funil.getBoundsInLocal());
                         Bounds bBounds = baldeDestino.localToScene(baldeDestino.getBoundsInLocal());
                         double baldeCentroX = bBounds.getMinX() + (bBounds.getWidth() / 2);
 
-                        deslizarElemento(funil, 0, 135);
-                        Thread.sleep(150);
-
                         double funilDestinoX = baldeCentroX - (fBounds.getWidth() / 2);
                         double distFunilX = funilDestinoX - fBounds.getMinX();
 
-                        deslizarMovimentoLento(funil, distFunilX, 0, 60, 25);
-                        Thread.sleep(300);
+                        deslizarMovimentoLento(funil, distFunilX, 0, 25, 8);
+                        Thread.sleep(100);
 
                         Platform.runLater(() -> {
                             Pane root = (Pane) funil.getScene().getRoot();
                             if (bloco.getParent() != root) {
                                 Pane pai = (Pane) bloco.getParent();
                                 int index = pai.getChildren().indexOf(bloco);
-
                                 Label fantasma = new Label();
                                 fantasma.setPrefSize(80, 80);
                                 pai.getChildren().set(index, fantasma);
-
                                 root.getChildren().add(bloco);
                             }
                             bloco.setLayoutX(0);
@@ -160,31 +168,32 @@ public class Controller {
 
                             bloco.setTranslateX(blocoDestinoX);
                             bloco.setTranslateY(blocoDestinoY);
-
                             bloco.toFront();
                             bloco.setOpacity(1);
                         });
-                        Thread.sleep(150);
+                        Thread.sleep(50);
 
                         Bounds currentFunil = funil.localToScene(funil.getBoundsInLocal());
                         double topoBlocoY = currentFunil.getMaxY() - 20;
-
                         double chaoInternoY = bBounds.getMaxY() - 4;
                         double alturaOcupada = contagemBaldes[idBalde] * 85;
                         double destinoCenaY = chaoInternoY - alturaOcupada - 80;
                         double quedaReal = destinoCenaY - topoBlocoY;
 
                         deslizarElemento(bloco, 0, quedaReal);
-                        Thread.sleep(600);
+                        Thread.sleep(200);
 
                         contagemBaldes[idBalde]++;
+
+                        Platform.runLater(() -> destacarLinha(3));
+                        Thread.sleep(800);
 
                         double vX = -funil.getTranslateX();
                         double vY = -funil.getTranslateY();
                         deslizarElemento(funil, vX, 0);
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                         deslizarElemento(funil, 0, vY);
-                        Thread.sleep(1200);
+                        Thread.sleep(100);
 
                         Platform.runLater(() -> {
                             Pane root = (Pane) funil.getScene().getRoot();
@@ -194,8 +203,115 @@ public class Controller {
                             bloco.setTranslateY(0);
                         });
                     }
-                }
 
+                    if (passo.getAcao().equals("ORDENA_BALDE")) {
+                        int idBalde = passo.getI_origem();
+                        VBox baldeAtual = baldesVisuais[idBalde];
+
+                        Platform.runLater(() -> {
+                            lblI.setText("i = " + idBalde);
+                            destacarLinha(5);
+                        });
+                        Thread.sleep(800);
+
+                        Platform.runLater(() -> destacarLinha(6));
+                        Thread.sleep(800);
+
+                        Platform.runLater(() -> destacarLinha(7));
+                        Thread.sleep(800);
+
+                        Platform.runLater(() -> {
+                            for (Node n : baldeAtual.getChildren()) {
+                                n.setStyle("-fx-background-color: #f1c40f; -fx-text-fill: black; -fx-font-size: 30px; -fx-font-weight: bold; -fx-border-color: #f39c12; -fx-border-width: 2;");
+                            }
+                        });
+                        Thread.sleep(300);
+
+                        Platform.runLater(() -> {
+                            java.util.List<Node> listaOrdenada = new java.util.ArrayList<>(baldeAtual.getChildren());
+                            listaOrdenada.sort((n1, n2) -> {
+                                int v1 = Integer.parseInt(((Label) n1).getText());
+                                int v2 = Integer.parseInt(((Label) n2).getText());
+                                return Integer.compare(v1, v2);
+                            });
+                            baldeAtual.getChildren().setAll(listaOrdenada);
+                            for (Node n : baldeAtual.getChildren()) {
+                                n.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 30px; -fx-font-weight: bold; -fx-border-color: #2ecc71; -fx-border-width: 2;");
+                            }
+                        });
+                        Thread.sleep(500);
+                    }
+
+                    if (passo.getAcao().equals("PEGA_ELEMENTO") && p + 1 < qtd && passos[p+1].getAcao().equals("INSERE_VETOR")) {
+                        Platform.runLater(() -> {
+                            lblI.setText("i = " + passo.getI_origem());
+                            lblK.setText("k = " + passo.getI_destino());
+                            destacarLinha(10);
+                        });
+                        Thread.sleep(800);
+                        Platform.runLater(() -> destacarLinha(11));
+                        Thread.sleep(800);
+                    }
+
+                    if (passo.getAcao().equals("INSERE_VETOR")) {
+                        Platform.runLater(() -> {
+                            lblJ.setText("j = " + passo.getI_destino());
+                            destacarLinha(13);
+                        });
+                        Thread.sleep(800);
+
+                        int idBalde = passo.getI_origem();
+                        int posVetor = passo.getI_destino();
+                        VBox baldeOrigem = baldesVisuais[idBalde];
+
+                        double[] coords = new double[4];
+                        Node[] objBloco = new Node[1];
+                        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+
+                        Platform.runLater(() -> {
+                            Node bloco = baldeOrigem.getChildren().get(0);
+                            objBloco[0] = bloco;
+                            bloco.setScaleX(1.0);
+                            bloco.setScaleY(1.0);
+                            Bounds bBloco = bloco.localToScene(bloco.getBoundsInLocal());
+                            coords[0] = bBloco.getMinX();
+                            coords[1] = bBloco.getMinY();
+                            Node fantasma = container.getChildren().get(posVetor);
+                            Bounds bFantasma = fantasma.localToScene(fantasma.getBoundsInLocal());
+                            coords[2] = bFantasma.getMinX();
+                            coords[3] = bFantasma.getMinY();
+                            Pane root = (Pane) container.getScene().getRoot();
+                            baldeOrigem.getChildren().remove(bloco);
+                            root.getChildren().add(bloco);
+                            bloco.setLayoutX(0);
+                            bloco.setLayoutY(0);
+                            bloco.setTranslateX(coords[0]);
+                            bloco.setTranslateY(coords[1]);
+                            bloco.toFront();
+                            latch.countDown();
+                        });
+
+                        latch.await();
+
+                        double distX = coords[2] - coords[0];
+                        double distY = coords[3] - coords[1];
+
+                        deslizarElemento(objBloco[0], distX, distY);
+                        Thread.sleep(200);
+
+                        Platform.runLater(() -> {
+                            Pane root = (Pane) container.getScene().getRoot();
+                            root.getChildren().remove(objBloco[0]);
+                            container.getChildren().set(posVetor, objBloco[0]);
+                            objBloco[0].setTranslateX(0);
+                            objBloco[0].setTranslateY(0);
+                            destacarLinha(14);
+                        });
+                        Thread.sleep(800);
+                        Platform.runLater(() -> destacarLinha(15));
+                        Thread.sleep(400);
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -205,12 +321,10 @@ public class Controller {
     }
 
     private void deslizarElemento(Node elemento, double moverX, double moverY) throws InterruptedException {
-        int totalFrames = 30;
-        int tempoPorFrame = 15;
-
+        int totalFrames = 20;
+        int tempoPorFrame = 7;
         double inicioX = elemento.getTranslateX();
         double inicioY = elemento.getTranslateY();
-
         double passoX = moverX / totalFrames;
         double passoY = moverY / totalFrames;
 
