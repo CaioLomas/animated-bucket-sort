@@ -22,13 +22,13 @@
           AnchorPane.topAnchor="30.0" AnchorPane.rightAnchor="30.0"/>
 
     <HBox alignment="CENTER" spacing="40.0"
-          AnchorPane.topAnchor="250.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="850.0">
+          AnchorPane.topAnchor="400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="550.0">
         <Polygon fx:id="funil" points="0.0, 0.0, 120.0, 0.0, 100.0, 80.0, 20.0, 80.0" fill="#e67e22" stroke="#d35400" strokeWidth="4.0"/>
         <HBox fx:id="container" alignment="CENTER" spacing="0.0"/>
     </HBox>
 
-    <HBox alignment="CENTER" spacing="15.0"
-          AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="850.0">
+    <HBox alignment="CENTER" spacing="30.0"
+          AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="550.0">
         <VBox fx:id="balde0" alignment="BOTTOM_CENTER" minHeight="250.0" minWidth="80.0" style="-fx-background-color: #2a2a2a; -fx-border-color: #ffffff; -fx-border-width: 0 4 4 4; -fx-border-radius: 0 0 15 15; -fx-background-radius: 0 0 15 15;"/>
         <VBox fx:id="balde1" alignment="BOTTOM_CENTER" minHeight="250.0" minWidth="80.0" style="-fx-background-color: #2a2a2a; -fx-border-color: #ffffff; -fx-border-width: 0 4 4 4; -fx-border-radius: 0 0 15 15; -fx-background-radius: 0 0 15 15;"/>
         <VBox fx:id="balde2" alignment="BOTTOM_CENTER" minHeight="250.0" minWidth="80.0" style="-fx-background-color: #2a2a2a; -fx-border-color: #ffffff; -fx-border-width: 0 4 4 4; -fx-border-radius: 0 0 15 15; -fx-background-radius: 0 0 15 15;"/>
