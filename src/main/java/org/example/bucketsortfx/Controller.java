@@ -2,10 +2,27 @@ package org.example.bucketsortfx;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Polygon;
 
-public class HelloController {
+public class Controller {
+
     @FXML
-    private Label welcomeText;
+    private HBox container;
+    @FXML
+    private VBox codigoContainer;
+    @FXML
+    private Label lblIndice;
+    @FXML
+    private Label lblI;
+    @FXML
+    private Label lblJ;
+    @FXML
+    private Label lblK;
+    @FXML
+    private Polygon funil;
+
     private String[] codigo_fonte = {
             "int indice;",
             "for(int i=0;i<10;i++){",
@@ -33,13 +50,22 @@ public class HelloController {
     };
 
     @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
-    }
+    public void initialize() {
+        BucketSort bk=new BucketSort();
+        bk.geraVetor();
 
-    //    A animação do algoritmo deverá conter:
-    //            1. geração aleatória dos valores a serem ordenados;
-    //2. objetos com os valores sendo movidos na tela;
-    //3. código-fonte do metodo de ordenação demarcando cada linha de execução;
-    //4. variáveis de índices mostradas na tela, setas indicando o processo, cores, etc.
+        for (int v : bk.getVetor()) {
+            Label l = new Label(String.valueOf(v));
+            l.setPrefSize(80, 80);
+            l.setAlignment(javafx.geometry.Pos.CENTER);
+            l.setStyle("-fx-background-color: #007acc; -fx-text-fill: white; -fx-font-size: 30px; -fx-font-weight: bold; -fx-border-color: #005999; -fx-border-width: 2;");
+            container.getChildren().add(l);
+        }
+
+        for (String linha : codigo_fonte) {
+            Label labelLinha = new Label(linha);
+            labelLinha.setStyle("-fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 20px; -fx-padding: 2 5 2 5;");
+            codigoContainer.getChildren().add(labelLinha);
+        }
+    }
 }
