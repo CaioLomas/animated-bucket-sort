@@ -10,16 +10,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 public class Controller {
 
-    @FXML private Label lblIndice;
-    @FXML private Label lblI;
-    @FXML private Label lblJ;
-    @FXML private Label lblK;
-    @FXML private VBox codigoContainer;
+    @FXML private Label lblIndice, lblI, lblJ, lblK;
     @FXML private Polygon funil;
     @FXML private HBox container;
-
+    @FXML private VBox codigoContainer;
     @FXML private VBox balde0, balde1, balde2, balde3, balde4, balde5, balde6, balde7, balde8, balde9;
 
     private Label[] blocosVetor = new Label[10];
@@ -64,6 +64,7 @@ public class Controller {
         baldesVisuais[9] = balde9;
 
         int[] vetorOriginal = bk.getVetor();
+
         for (int i = 0; i < 10; i++) {
             Label l = new Label(String.valueOf(vetorOriginal[i]));
             l.setPrefSize(80, 80);
@@ -75,6 +76,7 @@ public class Controller {
         }
 
         linhasVisuais = new Label[codigo_fonte.length];
+
         for (int i = 0; i < codigo_fonte.length; i++) {
             Label labelLinha = new Label(codigo_fonte[i]);
             labelLinha.setStyle("-fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 20px; -fx-padding: 2 5 2 5;");
@@ -83,7 +85,6 @@ public class Controller {
         }
 
         bk.ordenaVetor();
-
         iniciarMotorDeAnimacao(bk);
     }
 
@@ -97,9 +98,9 @@ public class Controller {
 
                 for (int p = 0; p < qtd; p++) {
                     Passo passo = passos[p];
+                    String acaoAtual = passo.getAcao();
 
-                    if (passo.getAcao().equals("PEGA_ELEMENTO") && (passo.getI_destino() == -1 || (passo.getI_destino() >= 0 && p + 1 < qtd && !passos[p+1].getAcao().equals("INSERE_VETOR")))) {
-
+                    if (acaoAtual.equals("PEGA_ELEMENTO") && (passo.getI_destino() == -1 || (passo.getI_destino() >= 0 && p + 1 < qtd && !passos[p+1].getAcao().equals("INSERE_VETOR")))) {
                         Platform.runLater(() -> destacarLinha(0));
                         Thread.sleep(800);
 
@@ -118,16 +119,16 @@ public class Controller {
                         Thread.sleep(50);
                     }
 
-                    if (passo.getAcao().equals("INSERE_BALDE")) {
+                    if (acaoAtual.equals("INSERE_BALDE")) {
+                        int idBalde = passo.getI_destino();
+                        Label bloco = blocosVetor[passo.getI_origem()];
+                        VBox baldeDestino = baldesVisuais[idBalde];
+
                         Platform.runLater(() -> {
-                            lblIndice.setText("indice = " + passo.getI_destino());
+                            lblIndice.setText("indice = " + idBalde);
                             destacarLinha(2);
                         });
                         Thread.sleep(800);
-
-                        Label bloco = blocosVetor[passo.getI_origem()];
-                        VBox baldeDestino = baldesVisuais[passo.getI_destino()];
-                        int idBalde = passo.getI_destino();
 
                         Platform.runLater(() -> {
                             bloco.setOpacity(0);
@@ -142,7 +143,6 @@ public class Controller {
                         Bounds fBounds = funil.localToScene(funil.getBoundsInLocal());
                         Bounds bBounds = baldeDestino.localToScene(baldeDestino.getBoundsInLocal());
                         double baldeCentroX = bBounds.getMinX() + (bBounds.getWidth() / 2);
-
                         double funilDestinoX = baldeCentroX - (fBounds.getWidth() / 2);
                         double distFunilX = funilDestinoX - fBounds.getMinX();
 
@@ -151,6 +151,7 @@ public class Controller {
 
                         Platform.runLater(() -> {
                             Pane root = (Pane) funil.getScene().getRoot();
+
                             if (bloco.getParent() != root) {
                                 Pane pai = (Pane) bloco.getParent();
                                 int index = pai.getChildren().indexOf(bloco);
@@ -159,11 +160,12 @@ public class Controller {
                                 pai.getChildren().set(index, fantasma);
                                 root.getChildren().add(bloco);
                             }
+
                             bloco.setLayoutX(0);
                             bloco.setLayoutY(0);
 
-                            double blocoDestinoX = baldeCentroX - 40;
                             Bounds currentFunil = funil.localToScene(funil.getBoundsInLocal());
+                            double blocoDestinoX = baldeCentroX - 40;
                             double blocoDestinoY = currentFunil.getMaxY() - 20;
 
                             bloco.setTranslateX(blocoDestinoX);
@@ -190,6 +192,7 @@ public class Controller {
 
                         double vX = -funil.getTranslateX();
                         double vY = -funil.getTranslateY();
+
                         deslizarElemento(funil, vX, 0);
                         Thread.sleep(50);
                         deslizarElemento(funil, 0, vY);
@@ -204,7 +207,7 @@ public class Controller {
                         });
                     }
 
-                    if (passo.getAcao().equals("ORDENA_BALDE")) {
+                    if (acaoAtual.equals("ORDENA_BALDE")) {
                         int idBalde = passo.getI_origem();
                         VBox baldeAtual = baldesVisuais[idBalde];
 
@@ -228,13 +231,16 @@ public class Controller {
                         Thread.sleep(300);
 
                         Platform.runLater(() -> {
-                            java.util.List<Node> listaOrdenada = new java.util.ArrayList<>(baldeAtual.getChildren());
+                            List<Node> listaOrdenada = new ArrayList<>(baldeAtual.getChildren());
+
                             listaOrdenada.sort((n1, n2) -> {
                                 int v1 = Integer.parseInt(((Label) n1).getText());
                                 int v2 = Integer.parseInt(((Label) n2).getText());
                                 return Integer.compare(v1, v2);
                             });
+
                             baldeAtual.getChildren().setAll(listaOrdenada);
+
                             for (Node n : baldeAtual.getChildren()) {
                                 n.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 30px; -fx-font-weight: bold; -fx-border-color: #2ecc71; -fx-border-width: 2;");
                             }
@@ -242,52 +248,59 @@ public class Controller {
                         Thread.sleep(500);
                     }
 
-                    if (passo.getAcao().equals("PEGA_ELEMENTO") && p + 1 < qtd && passos[p+1].getAcao().equals("INSERE_VETOR")) {
+                    if (acaoAtual.equals("PEGA_ELEMENTO") && p + 1 < qtd && passos[p+1].getAcao().equals("INSERE_VETOR")) {
                         Platform.runLater(() -> {
                             lblI.setText("i = " + passo.getI_origem());
                             lblK.setText("k = " + passo.getI_destino());
                             destacarLinha(10);
                         });
                         Thread.sleep(800);
+
                         Platform.runLater(() -> destacarLinha(11));
                         Thread.sleep(800);
                     }
 
-                    if (passo.getAcao().equals("INSERE_VETOR")) {
-                        Platform.runLater(() -> {
-                            lblJ.setText("j = " + passo.getI_destino());
-                            destacarLinha(13);
-                        });
-                        Thread.sleep(800);
-
+                    if (acaoAtual.equals("INSERE_VETOR")) {
                         int idBalde = passo.getI_origem();
                         int posVetor = passo.getI_destino();
                         VBox baldeOrigem = baldesVisuais[idBalde];
 
+                        Platform.runLater(() -> {
+                            lblJ.setText("j = " + posVetor);
+                            destacarLinha(13);
+                        });
+                        Thread.sleep(800);
+
                         double[] coords = new double[4];
                         Node[] objBloco = new Node[1];
-                        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+                        CountDownLatch latch = new CountDownLatch(1);
 
                         Platform.runLater(() -> {
                             Node bloco = baldeOrigem.getChildren().get(0);
                             objBloco[0] = bloco;
+
                             bloco.setScaleX(1.0);
                             bloco.setScaleY(1.0);
+
                             Bounds bBloco = bloco.localToScene(bloco.getBoundsInLocal());
                             coords[0] = bBloco.getMinX();
                             coords[1] = bBloco.getMinY();
+
                             Node fantasma = container.getChildren().get(posVetor);
                             Bounds bFantasma = fantasma.localToScene(fantasma.getBoundsInLocal());
                             coords[2] = bFantasma.getMinX();
                             coords[3] = bFantasma.getMinY();
+
                             Pane root = (Pane) container.getScene().getRoot();
                             baldeOrigem.getChildren().remove(bloco);
                             root.getChildren().add(bloco);
+
                             bloco.setLayoutX(0);
                             bloco.setLayoutY(0);
                             bloco.setTranslateX(coords[0]);
                             bloco.setTranslateY(coords[1]);
                             bloco.toFront();
+
                             latch.countDown();
                         });
 
@@ -308,6 +321,7 @@ public class Controller {
                             destacarLinha(14);
                         });
                         Thread.sleep(800);
+
                         Platform.runLater(() -> destacarLinha(15));
                         Thread.sleep(400);
                     }
@@ -316,6 +330,7 @@ public class Controller {
                 e.printStackTrace();
             }
         });
+
         thread.setDaemon(true);
         thread.start();
     }
@@ -323,6 +338,7 @@ public class Controller {
     private void deslizarElemento(Node elemento, double moverX, double moverY) throws InterruptedException {
         int totalFrames = 20;
         int tempoPorFrame = 7;
+
         double inicioX = elemento.getTranslateX();
         double inicioY = elemento.getTranslateY();
         double passoX = moverX / totalFrames;
